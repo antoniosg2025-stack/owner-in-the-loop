@@ -100,6 +100,26 @@ ol.rq li { margin-bottom: 10px; }
 footer { background: var(--night); color: #9DB0C7; padding: 30px 0; font-size: 14px; }
 footer a { color: #E6EEF6; }
 
+
+.bridge { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 26px; }
+.col { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.col h3 { font-size: 18px; margin-bottom: 10px; }
+.col ul { margin: 0; padding-left: 18px; font-size: 15px; color: #33445C; }
+.col li { margin-bottom: 6px; }
+.col.mid { border-color: var(--green); box-shadow: 0 6px 18px rgba(18,122,90,.10); }
+.timeline { margin-top: 26px; display: grid; gap: 10px; }
+.ti { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: start; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+.ti .yr { font-family: var(--mono); font-weight: 600; color: var(--green); font-size: 14px; }
+.ti p { margin: 0; font-size: 15.5px; }
+.ti p b { color: var(--ink); }
+.cases { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin-top: 26px; }
+.case { display: flex; flex-direction: column; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; text-decoration: none; color: inherit; border-top: 4px solid var(--c, var(--green)); }
+.case .tag { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.case .big { font-family: var(--display); font-weight: 800; font-size: 28px; color: var(--c, var(--green)); line-height: 1.05; }
+.case p { margin: 0; font-size: 14.5px; }
+.case .go { margin-top: auto; font-size: 13px; font-weight: 600; color: var(--green); }
+@media (max-width: 860px) { .bridge { grid-template-columns: 1fr; } .ti { grid-template-columns: 1fr; gap: 4px; } }
+
 @media (max-width: 720px) { .ro { grid-template-columns: 1fr; } .chart { height: 310px; } }
 @media (max-width: 480px) { body { font-size: 16px; } .finding { grid-template-columns: 1fr; gap: 8px; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
@@ -114,7 +134,8 @@ footer a { color: #E6EEF6; }
     <p class="q">My vending robots, a vision-based store and a team of LLM agents run seven small businesses. Each needs my approval, and I am rarely available. <b>How can these agents learn my reward from ratings and corrections, measure how aligned they are with me, and decide what to do while I am not watching?</b></p>
     <p class="byline"><strong>Juan Antonio Sainz Gálvez</strong> · Applied AI &amp; Machine Learning, Conestoga College · B.Eng. Computer Engineering, Tecnológico de Monterrey · 25 years building and running companies</p>
     <div class="btns">
-      <a class="btn primary" href="#lab">Where this meets the IRL Lab</a>
+      <a class="btn primary" href="#why">Why this lab, why me</a>
+      <a class="btn ghost" href="#lab">Where this meets the IRL Lab</a>
       <a class="btn ghost" href="https://research.antonio-sainz.com">Full research portfolio (7 cases)</a>
     </div>
   </div>
@@ -122,14 +143,50 @@ footer a { color: #E6EEF6; }
 
 <nav class="topnav" aria-label="Sections">
   <div class="wrap">
+    <a href="#why">Why this lab</a>
     <a href="#testbed">Testbed</a>
     <a href="#lab">IRL Lab</a>
     <a href="#ratings">Exp. 1 · Ratings</a>
     <a href="#monitor">Exp. 2 · Monitor</a>
     <a href="#proposal">Proposal</a>
+    <a href="#projects">My projects</a>
     <a href="#refs">References</a>
   </div>
 </nav>
+
+
+<section id="why" class="white">
+  <div class="wrap">
+    <p class="sec-tag">Why this lab, why me</p>
+    <h2>The lab's questions, my research line, and the work that brought me here</h2>
+    <p class="lede read">For 20 years I have built businesses that must keep running when I am not there: a distribution company, rental properties, vending machines, and now AI agents. Every one of them hit the same limit: decisions waited for me. That is the problem this lab studies from the other side, how an agent learns from a human who teaches it, and how much it can do alone.</p>
+    <div class="bridge">
+      <div class="col"><h3>What the IRL Lab works on</h3><ul>
+        <li>Learning rewards from human ratings and preferences (R4, 2026)</li>
+        <li>Measuring alignment with a stakeholder (TAC, 2025)</li>
+        <li>Agents that do not always observe the reward (Monitored MDPs, 2025)</li>
+        <li>Foundation models and LLM decision-making with RL</li>
+        <li>Human-AI teams and robots learning in the real world</li></ul></div>
+      <div class="col mid"><h3>My research line</h3><ul>
+        <li>Agents that learn their owner's way of deciding from approvals, ratings and corrections</li>
+        <li>Error measured as "the agent decided differently from the owner"</li>
+        <li>Knowing when to act alone and when to ask, while the owner is away</li>
+        <li>Keeping the owner's profile when someone else approves</li>
+        <li>Tested on robots in the field and LLM agents</li></ul></div>
+      <div class="col"><h3>What I have built</h3><ul>
+        <li>An LED distribution company grown from my living room to about 200 employees, with quality-inspection offices in Hong Kong and Shenzhen</li>
+        <li>SAP data-migration processes for large manufacturing go-lives</li>
+        <li>Rental and short-term rental properties in Mexico, operated remotely</li>
+        <li>Vending robots in Ontario, a vision store, and seven businesses run by AI agents</li></ul></div>
+    </div>
+    <div class="timeline">
+      <div class="ti"><span class="yr">2007 – 2012</span><p><b>Data migration engineer.</b> Designed SAP data-migration processes (legacy extraction, cleansing and transformation rules, SQL) for manufacturing plants.</p></div>
+      <div class="ti"><span class="yr">2012 – 2020</span><p><b>Founder, LED lighting distributor.</b> Grew it to about 200 employees and US$6–7M in yearly sales, with offices across Mexico and in China. Learned how hard it is to delegate decisions.</p></div>
+      <div class="ti"><span class="yr">2020 – 2022</span><p><b>Real estate investor.</b> Built and ran rental and short-term rental properties, managed at a distance.</p></div>
+      <div class="ti"><span class="yr">2022 – today</span><p><b>Canada.</b> Vending robots, AI agents for content, SEO, investing and sourcing, a cashierless vision store, and Applied AI &amp; Machine Learning at Conestoga College.</p></div>
+    </div>
+  </div>
+</section>
 
 <section id="testbed">
   <div class="wrap">
@@ -222,6 +279,24 @@ footer a { color: #E6EEF6; }
   </div>
 </section>
 
+
+<section id="projects">
+  <div class="wrap">
+    <p class="sec-tag">Projects I am working on</p>
+    <h2>Seven businesses, seven case studies</h2>
+    <p class="lede read">Each case is a real operation with its own notebook and one main finding. Together they are the evidence behind this proposal. The full interactive portfolio is at <a href="https://research.antonio-sainz.com">research.antonio-sainz.com</a>, and the code is on <a href="https://github.com/antoniosg2025-stack/applied-ai-research-portfolio">GitHub</a>.</p>
+    <div class="cases">
+      <a class="case" href="https://research.antonio-sainz.com/#case-01" style="--c: var(--green)"><span class="tag">01 · Agents</span><span class="big">3× fewer errors</span><p>One decision profile per type of decision makes a third of the errors of a single profile and asks half as often.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-02" style="--c: var(--amber)"><span class="tag">02 · Equilibra</span><span class="big">$8,800</span><p>misplaced per user when copying the owner's money moves; learning his rule with 13 questions fixes it.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-03" style="--c: var(--red)"><span class="tag">03 · Press</span><span class="big">4× faster</span><p>learning from a correction with a reason than from yes/no approvals.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-04" style="--c: var(--blue)"><span class="tag">04 · SEO</span><span class="big">360 → 126</span><p>questions to the owner in 12 weeks when only reversible changes run alone.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-05" style="--c: var(--green)"><span class="tag">05 · Vending</span><span class="big">$83 → $155</span><p>weekly margin after travel, because the owner's rules count his time and driving.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-06" style="--c: var(--amber)"><span class="tag">06 · GrabGo</span><span class="big">−90%</span><p>money lost to image-recognition errors when look-alike products share a price.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-07" style="--c: var(--red)"><span class="tag">07 · Suppliers</span><span class="big">15% → 2.5%</span><p>of lots where agent and owner disagree, once his tolerance is learned per product.</p><span class="go">Open the case →</span></a>
+    </div>
+  </div>
+</section>
+
 <section id="refs" class="white">
   <div class="wrap">
     <p class="sec-tag">References</p>
@@ -281,7 +356,7 @@ const hrs = document.getElementById("hours"); hrs.addEventListener("input", ()=>
 // Navigation
 function go(id){ const el=document.getElementById(id); if(!el) return; el.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); try{history.replaceState(null,"","#"+id);}catch(e){} }
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener("click",e=>{e.preventDefault(); go(a.getAttribute("href").slice(1));}));
-const navs=[...document.querySelectorAll(".topnav a")], secs=["testbed","lab","ratings","monitor","proposal","refs"].map(i=>document.getElementById(i));
+const navs=[...document.querySelectorAll(".topnav a")], secs=["why","testbed","lab","ratings","monitor","proposal","projects","refs"].map(i=>document.getElementById(i));
 addEventListener("scroll",()=>{ let cur=null; for(const s of secs){ if(s.getBoundingClientRect().top<120) cur=s.id; } navs.forEach(a=>a.classList.toggle("on", a.getAttribute("href")==="#"+cur)); },{passive:true});
 </script>
 </body>
