@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Owner in the Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root {
+  /* Layout idea: a dark field-robotics cover, then a light reading column; the lab map and two live experiments carry the argument. */
+  --night: #0E1A2B;
+  --ink: #18263A;
+  --paper: #F3F5F8;
+  --card: #FFFFFF;
+  --line: #DCE2EA;
+  --muted: #5E6B7E;
+  --green: #127A5A;
+  --amber: #D9921C;
+  --red: #C8463F;
+  --blue: #3F7FC2;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 17px/1.6 var(--body); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+a { color: var(--green); }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+.read { max-width: 68ch; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+[id] { scroll-margin-top: 64px; }
+
+.cover { background: radial-gradient(1000px 480px at 90% -10%, #1C3B4A 0%, transparent 60%), var(--night); color: #E6EEF6; padding: 56px 0 46px; }
+.eyebrow { font-family: var(--mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin: 0 0 16px; }
+.cover h1 { font-size: clamp(36px, 5.2vw, 60px); font-weight: 800; letter-spacing: -.02em; color: #fff; max-width: 20ch; }
+.cover .q { font-size: 20px; color: #C9D6E3; max-width: 60ch; margin: 22px 0 0; }
+.cover .q b { color: #fff; font-weight: 600; }
+.byline { margin-top: 22px; font-size: 14px; color: #9DB0C7; }
+.byline strong { color: #E6EEF6; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+.btn { display: inline-block; text-decoration: none; border-radius: 999px; padding: 10px 16px; font-weight: 600; font-size: 14.5px; }
+.btn.primary { background: var(--amber); color: var(--night); }
+.btn.ghost { border: 1px solid #355574; color: #E6EEF6; }
+
+.topnav { position: sticky; top: 0; z-index: 20; background: rgba(14,26,43,.96); border-bottom: 1px solid #22395A; }
+.topnav .wrap { display: flex; gap: 6px; overflow-x: auto; padding-top: 10px; padding-bottom: 10px; scrollbar-width: none; }
+.topnav a { flex: none; font-family: var(--mono); font-size: 13px; color: #C9D5E4; text-decoration: none; border: 1px solid #2F4A6E; border-radius: 999px; padding: 6px 12px; }
+.topnav a.on { background: var(--amber); border-color: var(--amber); color: var(--night); font-weight: 600; }
+
+section { padding: 52px 0; }
+.sec-tag { font-family: var(--mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--green); margin: 0 0 10px; }
+section h2 { font-size: clamp(27px, 3.6vw, 40px); letter-spacing: -.015em; }
+.lede { font-size: 18.5px; color: #33445C; margin: 16px 0 0; }
+.white { background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+.grid3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 26px; }
+.tb { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.white .tb { background: var(--paper); }
+.tb .k { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tb h3 { font-size: 20px; margin: 6px 0 6px; }
+.tb p { margin: 0; font-size: 15.5px; color: #33445C; }
+.tb .big { font-family: var(--display); font-weight: 800; font-size: 34px; color: var(--green); line-height: 1.05; margin-top: 4px; }
+
+.lab { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-top: 26px; }
+.m { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; border-left: 5px solid var(--c, var(--green)); }
+.m .who { font-weight: 600; font-size: 16px; }
+.m .role { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.m .their { font-size: 14.5px; color: #33445C; }
+.m .mine { font-size: 14.5px; background: #EEF6F2; border-radius: 10px; padding: 10px 12px; }
+.m .mine b { color: var(--green); }
+
+.panel { margin-top: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 14px 8px; }
+.chart { width: 100%; height: 340px; }
+.note { font-size: 13px; color: var(--muted); margin: 6px 6px 8px; }
+.control { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: center; padding: 4px 6px 12px; }
+.control label { font-weight: 600; }
+.control output { font-family: var(--mono); font-weight: 600; font-size: 20px; color: var(--green); }
+.control input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--green); height: 28px; }
+.ro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 6px 12px; }
+.r { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.r .who { font-size: 13.5px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.r .dot { width: 10px; height: 10px; border-radius: 50%; }
+.r .v { font-size: 14px; color: #33445C; margin-top: 4px; }
+.r .v b { font-family: var(--mono); font-size: 18px; color: var(--ink); }
+.finding { margin-top: 16px; display: grid; grid-template-columns: 52px 1fr; gap: 14px; background: var(--night); color: #E3EAF3; border-radius: 16px; padding: 20px; }
+.finding .n { font-family: var(--display); font-weight: 800; font-size: 32px; color: var(--amber); line-height: 1; }
+.finding p { margin: 0; }
+.finding b { color: #fff; }
+
+ol.rq { padding-left: 22px; }
+ol.rq li { margin-bottom: 10px; }
+.refs li { font-size: 15px; margin-bottom: 6px; }
+footer { background: var(--night); color: #9DB0C7; padding: 30px 0; font-size: 14px; }
+footer a { color: #E6EEF6; }
+
+
+.bridge { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 26px; }
+.col { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.col h3 { font-size: 18px; margin-bottom: 10px; }
+.col ul { margin: 0; padding-left: 18px; font-size: 15px; color: #33445C; }
+.col li { margin-bottom: 6px; }
+.col.mid { border-color: var(--green); box-shadow: 0 6px 18px rgba(18,122,90,.10); }
+.timeline { margin-top: 26px; display: grid; gap: 10px; }
+.ti { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: start; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+.ti .yr { font-family: var(--mono); font-weight: 600; color: var(--green); font-size: 14px; }
+.ti p { margin: 0; font-size: 15.5px; }
+.ti p b { color: var(--ink); }
+.cases { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin-top: 26px; }
+.case { display: flex; flex-direction: column; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; text-decoration: none; color: inherit; border-top: 4px solid var(--c, var(--green)); }
+.case .tag { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.case .big { font-family: var(--display); font-weight: 800; font-size: 28px; color: var(--c, var(--green)); line-height: 1.05; }
+.case p { margin: 0; font-size: 14.5px; }
+.case .go { margin-top: auto; font-size: 13px; font-weight: 600; color: var(--green); }
+@media (max-width: 860px) { .bridge { grid-template-columns: 1fr; } .ti { grid-template-columns: 1fr; gap: 4px; } }
+
+@media (max-width: 720px) { .ro { grid-template-columns: 1fr; } .chart { height: 310px; } }
+@media (max-width: 480px) { body { font-size: 16px; } .finding { grid-template-columns: 1fr; gap: 8px; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<header class="cover" id="top">
+  <div class="wrap">
+    <p class="eyebrow">Research proposal · Intelligent Robot Learning Lab · University of Alberta</p>
+    <h1>Owner in the loop: learning a business owner's reward when he is only sometimes watching</h1>
+    <p class="q">My vending robots, a vision-based store and a team of LLM agents run seven small businesses. Each needs my approval, and I am rarely available. <b>How can these agents learn my reward from ratings and corrections, measure how aligned they are with me, and decide what to do while I am not watching?</b></p>
+    <p class="byline"><strong>Juan Antonio Sainz Gálvez</strong> · Applied AI &amp; Machine Learning, Conestoga College · B.Eng. Computer Engineering, Tecnológico de Monterrey · 25 years building and running companies</p>
+    <div class="btns">
+      <a class="btn primary" href="#why">Why this lab, why me</a>
+      <a class="btn ghost" href="#lab">Where this meets the IRL Lab</a>
+      <a class="btn ghost" href="https://research.antonio-sainz.com">Full research portfolio (7 cases)</a>
+    </div>
+  </div>
+</header>
+
+<nav class="topnav" aria-label="Sections">
+  <div class="wrap">
+    <a href="#why">Why this lab</a>
+    <a href="#testbed">Testbed</a>
+    <a href="#lab">IRL Lab</a>
+    <a href="#ratings">Exp. 1 · Ratings</a>
+    <a href="#monitor">Exp. 2 · Monitor</a>
+    <a href="#proposal">Proposal</a>
+    <a href="#projects">My projects</a>
+    <a href="#refs">References</a>
+  </div>
+</nav>
+
+
+<section id="why" class="white">
+  <div class="wrap">
+    <p class="sec-tag">Why this lab, why me</p>
+    <h2>The lab's questions, my research line, and the work that brought me here</h2>
+    <p class="lede read">For 20 years I have built businesses that must keep running when I am not there: a distribution company, rental properties, vending machines, and now AI agents. Every one of them hit the same limit: decisions waited for me. That is the problem this lab studies from the other side, how an agent learns from a human who teaches it, and how much it can do alone.</p>
+    <div class="bridge">
+      <div class="col"><h3>What the IRL Lab works on</h3><ul>
+        <li>Learning rewards from human ratings and preferences (R4, 2026)</li>
+        <li>Measuring alignment with a stakeholder (TAC, 2025)</li>
+        <li>Agents that do not always observe the reward (Monitored MDPs, 2025)</li>
+        <li>Foundation models and LLM decision-making with RL</li>
+        <li>Human-AI teams and robots learning in the real world</li></ul></div>
+      <div class="col mid"><h3>My research line</h3><ul>
+        <li>Agents that learn their owner's way of deciding from approvals, ratings and corrections</li>
+        <li>Error measured as "the agent decided differently from the owner"</li>
+        <li>Knowing when to act alone and when to ask, while the owner is away</li>
+        <li>Keeping the owner's profile when someone else approves</li>
+        <li>Tested on robots in the field and LLM agents</li></ul></div>
+      <div class="col"><h3>What I have built</h3><ul>
+        <li>An LED distribution company grown from my living room to about 200 employees, with quality-inspection offices in Hong Kong and Shenzhen</li>
+        <li>SAP data-migration processes for large manufacturing go-lives</li>
+        <li>Rental and short-term rental properties in Mexico, operated remotely</li>
+        <li>Vending robots in Ontario, a vision store, and seven businesses run by AI agents</li></ul></div>
+    </div>
+    <div class="timeline">
+      <div class="ti"><span class="yr">2007 – 2012</span><p><b>Data migration engineer.</b> Designed SAP data-migration processes (legacy extraction, cleansing and transformation rules, SQL) for manufacturing plants.</p></div>
+      <div class="ti"><span class="yr">2012 – 2020</span><p><b>Founder, LED lighting distributor.</b> Grew it to about 200 employees and US$6–7M in yearly sales, with offices across Mexico and in China. Learned how hard it is to delegate decisions.</p></div>
+      <div class="ti"><span class="yr">2020 – 2022</span><p><b>Real estate investor.</b> Built and ran rental and short-term rental properties, managed at a distance.</p></div>
+      <div class="ti"><span class="yr">2022 – today</span><p><b>Canada.</b> Vending robots, AI agents for content, SEO, investing and sourcing, a cashierless vision store, and Applied AI &amp; Machine Learning at Conestoga College.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="testbed">
+  <div class="wrap">
+    <p class="sec-tag">A deployed testbed</p>
+    <h2>Robots and agents already working in the field, with one human teacher</h2>
+    <p class="lede read">Most human-in-the-loop learning is tested in simulation or in short lab studies. This testbed runs every day, earns real money, and is taught by one real owner whose availability is limited and measurable.</p>
+    <div class="grid3">
+      <div class="tb"><span class="k">Embodied agents</span><h3>4 vending robots</h3><p>Deployed at a clinic, an auto-parts yard, a hotel and a car dealership, with sales telemetry. The owner corrects every restock plan; his rules cover his time and driving distance, which the textbook optimum ignores.</p></div>
+      <div class="tb"><span class="k">The robot, virtualized</span><h3>A vision-based store</h3><p>GrabGo turns a shelf into a store that charges from images: a shelf camera, a customer's phone photo, or both. The owner's privacy and cost trade-offs decide the setup at each location.</p></div>
+      <div class="tb"><span class="k">LLM agents</span><h3>Content, SEO, investing, sourcing</h3><p>Language-model agents propose posts, site changes, market theses and supplier decisions. Every approval, rejection and correction with its reason is logged.</p></div>
+      <div class="tb"><span class="k">Real decision log</span><div class="big num">9 of 24</div><p>site changes from the SEO agent ended their first week waiting for the owner. Waiting, not error, was the main cost.</p></div>
+      <div class="tb"><span class="k">A second teacher</span><h3>Specifiers</h3><p>Other people sometimes approve on the owner's behalf. Their answers are a second, misaligned teacher: in simulation, learning from them replaces the owner's profile without anyone noticing.</p></div>
+      <div class="tb"><span class="k">A limited monitor</span><h3>A full-time student owner</h3><p>The owner is in class most weekdays. His availability is a real, scheduled monitor: feedback exists only when he is watching.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="lab" class="white">
+  <div class="wrap">
+    <p class="sec-tag">Where this meets the IRL Lab</p>
+    <h2>One testbed, several of the lab's current questions</h2>
+    <p class="lede read">I read the lab's recent work and the research interests listed on its team page. These are the points where my data and my operation could be useful, member by member.</p>
+    <div class="lab">
+      <div class="m" style="--c: var(--green)"><span class="who">Matthew E. Taylor</span><span class="role">Director · human-in-the-loop RL, multi-agent systems, robotics</span><span class="their">Argues that RL is fundamentally human in the loop, and studies how agents learn from advice, demonstrations and feedback in the real world.</span><span class="mine"><b>Offer:</b> a long-running, real deployment where the human is the bottleneck, to test HITL methods outside the lab.</span></div>
+      <div class="m" style="--c: var(--amber)"><span class="who">Calarina Muslimani</span><span class="role">PhD · reward alignment, HITL RL</span><span class="their">Trajectory Alignment Coefficient: agreement between a stakeholder's preferences and a reward's rankings.</span><span class="mine"><b>Offer:</b> TAC measured against a real owner's choices across several businesses and over months, as his situation changes. Used in Experiment 1.</span></div>
+      <div class="m" style="--c: var(--amber)"><span class="who">Chaitanya Kharyal</span><span class="role">PhD · vision, robotics, human decision-making</span><span class="their">R4: learning rewards from ordinal ratings (bad, neutral, good) with a ranking mean squared error.</span><span class="mine"><b>Offer:</b> real ordinal ratings from an owner, plus a vision robot (the store) where ratings come from images. Experiment 1 tests the rating idea on business decisions.</span></div>
+      <div class="m" style="--c: var(--blue)"><span class="who">Sheila Schoepp · Yingyue Cao</span><span class="role">PhD / MSc · foundation models with RL, LLM decision-making</span><span class="their">Integrating LLMs and vision-language models with RL; using RL to improve LLM decisions.</span><span class="mine"><b>Offer:</b> LLM agents that already make real business decisions and need a learned reward from their owner instead of hand-written rules.</span></div>
+      <div class="m" style="--c: var(--blue)"><span class="who">Ethan Towsley · Marzieh Ghayour</span><span class="role">MSc · human-AI teams, adaptive systems</span><span class="their">Metrics and rewards for human-AI team collaboration; RL for decision-making in real-world settings.</span><span class="mine"><b>Offer:</b> a real owner + specifier + agents team, with logged hand-offs and the cost of each wait.</span></div>
+      <div class="m" style="--c: var(--red)"><span class="who">Sahand Somi · Matthew Schlegel</span><span class="role">MSc / Postdoc · RL in industry, explainable HITL RL</span><span class="their">RL applied to construction and to power systems.</span><span class="mine"><b>Offer:</b> a new applied domain for the lab, automated retail (vending robots and cashierless stores), run by someone who has operated companies for 25 years.</span></div>
+      <div class="m" style="--c: var(--red)"><span class="who">Alireza Kazemipour</span><span class="role">Monitored MDPs (with Parisi, Taylor and Bowling)</span><span class="their">Agents that do not always observe the reward, for instance because a human observer is not always available.</span><span class="mine"><b>Offer:</b> a natural Mon-MDP where the monitor is the owner's real schedule. Experiment 2.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="ratings">
+  <div class="wrap">
+    <p class="sec-tag">Experiment 1 · building on R4 and TAC</p>
+    <h2>Ratings or preferences: which teaches an agent the owner's reward?</h2>
+    <p class="lede read">The owner reviews spending proposals. With a <b>preference</b>, he picks the better of two proposals. With a <b>rating</b>, he labels one proposal bad, neutral or good. Both cost him one answer. I fit a linear reward from each kind of feedback (a ranking-MSE loss in the spirit of R4 for ratings, Bradley–Terry for preferences) and score it two ways: alignment with the owner (Kendall τ-b, as in TAC) and the share of proposals the agent would approve or reject differently from him.</p>
+    <div class="panel">
+      <div class="control"><label for="budget">Owner answers used for learning</label><output id="budgetOut">40</output><input id="budget" type="range" min="0" max="4" step="1" value="2"></div>
+      <div class="ro" style="grid-template-columns: 1fr 1fr">
+        <div class="r" style="background:#EEF6F2"><div class="who"><span class="dot" style="background: var(--green)"></span>Ratings (bad · neutral · good)</div><div class="v">Alignment <b id="rTac">0.90</b> · decides differently <b id="rErr">8.1%</b></div></div>
+        <div class="r" style="background:#FDF4E6"><div class="who"><span class="dot" style="background: var(--amber)"></span>Preferences (A or B)</div><div class="v">Alignment <b id="pTac">0.86</b> · decides differently <b id="pErr">19.1%</b></div></div>
+      </div>
+      <div id="tacChart" class="chart"></div>
+      <p class="note">Alignment = Kendall τ-b between the owner's true utility and the learned reward on 600 new proposals (1 = same ranking). 20 runs per point.</p>
+      <div id="errChart" class="chart"></div>
+      <p class="note">Share of new proposals where the agent's approve/reject differs from the owner's. This owner approves about a third of proposals.</p>
+    </div>
+    <div class="finding"><span class="n">1</span><p>Both kinds of feedback learn the owner's <b>ranking</b> well; preferences catch up with ratings after about 160 answers. But preferences never tell the agent <b>where the owner's bar is</b>: even with 160 answers the agent still approves or rejects about <b>19%</b> of proposals differently from him, against about <b>5%</b> with ratings. For an agent that must decide whether to act, ordinal ratings carry the information that matters. This supports R4's motivation in a non-robotic, money-valued domain.</p></div>
+  </div>
+</section>
+
+<section id="monitor" class="white">
+  <div class="wrap">
+    <p class="sec-tag">Experiment 2 · the owner as a monitor</p>
+    <h2>What should the agent do while the owner is not watching?</h2>
+    <p class="lede read">Decisions arrive every hour, because vending robots and an online store never close. The owner is available a few hours a week. Only then does he review the queue (up to six items an hour) and rate them; the agent refits its reward every week from the ratings it has seen. Three policies: always wait for him, always act alone, or act alone only when the learned reward is confident and the action is reversible.</p>
+    <div class="panel">
+      <div class="control"><label for="hours">Owner available, hours per week</label><output id="hoursOut">20 h</output><input id="hours" type="range" min="0" max="6" step="1" value="2"></div>
+      <div class="ro">
+        <div class="r"><div class="who"><span class="dot" style="background: var(--blue)"></span>Always wait</div><div class="v">Average wait <b id="w1">290 h</b><br>Errors <b id="e1">0</b> per 100</div></div>
+        <div class="r"><div class="who"><span class="dot" style="background: var(--red)"></span>Always act alone</div><div class="v">Average wait <b id="w2">0 h</b><br>Errors <b id="e2">9.3</b> per 100</div></div>
+        <div class="r" style="background:#EEF6F2"><div class="who"><span class="dot" style="background: var(--green)"></span>Alone if confident and reversible</div><div class="v">Average wait <b id="w3">65 h</b><br>Errors <b id="e3">0.35</b> per 100 · alone <b id="s3">25%</b></div></div>
+      </div>
+      <div id="waitChart" class="chart"></div>
+      <p class="note">Average hours a decision waits for the owner (log scale), 12 weeks, 8 runs per point. Below about 30 hours a week the queue never clears when the agent always waits.</p>
+    </div>
+    <div class="finding"><span class="n">2</span><p>When the owner is the monitor, <b>waiting is the dominant cost</b>, not error. Acting alone on everything makes about <b>7 to 13 mistakes per 100</b> decisions. Acting alone only on confident, reversible decisions (about a quarter of them) keeps mistakes near <b>0.3 per 100</b> and, at 20 owner-hours a week, cuts the average wait from about <b>290 to 65 hours</b>. Choosing which decisions to keep for the owner, and when to ask him, is exactly the open question of learning under a monitor.</p></div>
+  </div>
+</section>
+
+<section id="proposal">
+  <div class="wrap">
+    <p class="sec-tag">Proposed MSc thesis</p>
+    <h2>Learning an owner's reward from ratings and corrections under a monitored, misaligned-teacher setting</h2>
+    <ol class="rq read">
+      <li><b>Rating-based reward learning on a deployed system.</b> Does R4-style learning from ordinal ratings, plus corrections with reasons, reach the owner's decision bar with fewer owner answers than preferences, on vending, store and LLM-agent decisions?</li>
+      <li><b>The owner as a monitor.</b> Framing the owner's schedule as the monitor of a Mon-MDP, which decisions should the agent act on alone, which should it queue, and when should it ask?</li>
+      <li><b>Alignment that drifts and teachers that disagree.</b> Using TAC over months, how fast does alignment decay when the owner's situation changes, and how should an agent weigh a specifier's ratings against the owner's?</li>
+    </ol>
+    <h3 style="margin-top:26px">What I bring to the lab</h3>
+    <div class="grid3">
+      <div class="tb"><span class="k">Testbed</span><p>A live system the lab could study without building it: robots in the field, a vision store, LLM agents, logs and a real teacher.</p></div>
+      <div class="tb"><span class="k">Experience</span><p>25 years founding and operating companies (up to about 200 employees, offices in Mexico and China), plus SAP data-migration engineering. I can run an applied project end to end.</p></div>
+      <div class="tb"><span class="k">Flexibility</span><p>I am open to a funded position or an unfunded research collaboration.</p></div>
+    </div>
+    <p class="note" style="margin-top:14px">Both experiments use a simulated owner built from the portfolio's decision profile (case 01); the comparisons, not the absolute numbers, are the result. Code: <a href="https://github.com/antoniosg2025-stack/owner-in-the-loop">github.com/antoniosg2025-stack/owner-in-the-loop</a></p>
+  </div>
+</section>
+
+
+<section id="projects">
+  <div class="wrap">
+    <p class="sec-tag">Projects I am working on</p>
+    <h2>Seven businesses, seven case studies</h2>
+    <p class="lede read">Each case is a real operation with its own notebook and one main finding. Together they are the evidence behind this proposal. The full interactive portfolio is at <a href="https://research.antonio-sainz.com">research.antonio-sainz.com</a>, and the code is on <a href="https://github.com/antoniosg2025-stack/applied-ai-research-portfolio">GitHub</a>.</p>
+    <div class="cases">
+      <a class="case" href="https://research.antonio-sainz.com/#case-01" style="--c: var(--green)"><span class="tag">01 · Agents</span><span class="big">3× fewer errors</span><p>One decision profile per type of decision makes a third of the errors of a single profile and asks half as often.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-02" style="--c: var(--amber)"><span class="tag">02 · Equilibra</span><span class="big">$8,800</span><p>misplaced per user when copying the owner's money moves; learning his rule with 13 questions fixes it.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-03" style="--c: var(--red)"><span class="tag">03 · Press</span><span class="big">4× faster</span><p>learning from a correction with a reason than from yes/no approvals.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-04" style="--c: var(--blue)"><span class="tag">04 · SEO</span><span class="big">360 → 126</span><p>questions to the owner in 12 weeks when only reversible changes run alone.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-05" style="--c: var(--green)"><span class="tag">05 · Vending</span><span class="big">$83 → $155</span><p>weekly margin after travel, because the owner's rules count his time and driving.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-06" style="--c: var(--amber)"><span class="tag">06 · GrabGo</span><span class="big">−90%</span><p>money lost to image-recognition errors when look-alike products share a price.</p><span class="go">Open the case →</span></a>
+      <a class="case" href="https://research.antonio-sainz.com/#case-07" style="--c: var(--red)"><span class="tag">07 · Suppliers</span><span class="big">15% → 2.5%</span><p>of lots where agent and owner disagree, once his tolerance is learned per product.</p><span class="go">Open the case →</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="refs" class="white">
+  <div class="wrap">
+    <p class="sec-tag">References</p>
+    <ol class="refs read">
+      <li>Kharyal, C., Muslimani, C., &amp; Taylor, M. E. (2026). <a href="https://icml.cc/virtual/2026/poster/66112">Reward Learning through Ranking Mean Squared Error</a>. ICML.</li>
+      <li>Muslimani, C., Johnstonbaugh, K., Chandramouli, S., Booth, S., Knox, W. B., &amp; Taylor, M. E. (2025). <a href="https://arxiv.org/abs/2503.05996">Towards Improving Reward Design in RL: A Reward Alignment Metric for RL Practitioners</a>. Reinforcement Learning Journal.</li>
+      <li>Kazemipour, A., Parisi, S., Taylor, M. E., &amp; Bowling, M. (2025). <a href="https://arxiv.org/abs/2502.16772">Model-Based Exploration in Monitored Markov Decision Processes</a>. ICML.</li>
+      <li>Muslimani, C., &amp; Taylor, M. E. (2025). <a href="https://arxiv.org/abs/2405.00746">Leveraging Sub-Optimal Data for Human-in-the-Loop Reinforcement Learning</a>. ICLR.</li>
+      <li>Arabneydi, J., Islam, S., Das, S., et al., Taylor, M. E., Guzdial, M. (2025). <a href="https://arxiv.org/abs/2504.17006">A Systematic Approach to Design Real-World Human-in-the-Loop Deep Reinforcement Learning</a>.</li>
+      <li>Baraka, K., et al., Taylor, M., et al. (2026). Human-Interactive Robot Learning: Definition, Challenges, and Recommendations. ACM Transactions on Human-Robot Interaction.</li>
+      <li>Taylor, M. E. (2023). Reinforcement Learning Requires Human-in-the-Loop Framing and Approaches. HHAI.</li>
+    </ol>
+  </div>
+</section>
+
+<footer><div class="wrap">Juan Antonio Sainz Gálvez · <a href="https://research.antonio-sainz.com">research.antonio-sainz.com</a> · Prepared for the Intelligent Robot Learning Lab, University of Alberta.</div></footer>
+
+<script>
+const E = {"exp1":{"budgets":[10,20,40,80,160],"ratings":{"tac":[0.582,0.831,0.898,0.933,0.953],"err":[21.6,9.9,8.1,6.2,5.3]},"preferences":{"tac":[0.682,0.784,0.862,0.914,0.955],"err":[22.1,19.9,19.1,18.7,18.7]}},"exp2":[{"hours":5,"wait":{"avg_wait_h":828.7,"errors_per_100":0.0,"share_alone":0.0,"ratings_seen":370},"alone":{"avg_wait_h":0.0,"errors_per_100":12.85,"share_alone":100.0,"ratings_seen":27},"alone_if_safe":{"avg_wait_h":773.6,"errors_per_100":0.06,"share_alone":24.4,"ratings_seen":370}},{"hours":10,"wait":{"avg_wait_h":648.8,"errors_per_100":0.0,"share_alone":0.0,"ratings_seen":730},"alone":{"avg_wait_h":0.0,"errors_per_100":12.29,"share_alone":100.0,"ratings_seen":45},"alone_if_safe":{"avg_wait_h":518.6,"errors_per_100":0.27,"share_alone":25.6,"ratings_seen":729}},{"hours":20,"wait":{"avg_wait_h":289.9,"errors_per_100":0.0,"share_alone":0.0,"ratings_seen":1448},"alone":{"avg_wait_h":0.0,"errors_per_100":9.3,"share_alone":100.0,"ratings_seen":85},"alone_if_safe":{"avg_wait_h":64.5,"errors_per_100":0.35,"share_alone":25.4,"ratings_seen":1431}},{"hours":30,"wait":{"avg_wait_h":12.8,"errors_per_100":0.0,"share_alone":0.0,"ratings_seen":2010},"alone":{"avg_wait_h":0.0,"errors_per_100":8.17,"share_alone":100.0,"ratings_seen":113},"alone_if_safe":{"avg_wait_h":7.9,"errors_per_100":0.17,"share_alone":25.3,"ratings_seen":1508}},{"hours":40,"wait":{"avg_wait_h":4.2,"errors_per_100":0.0,"share_alone":0.0,"ratings_seen":2022},"alone":{"avg_wait_h":0.0,"errors_per_100":6.98,"share_alone":100.0,"ratings_seen":148},"alone_if_safe":{"avg_wait_h":3.4,"errors_per_100":0.26,"share_alone":25.0,"ratings_seen":1520}},{"hours":60,"wait":{"avg_wait_h":1.9,"errors_per_100":0.0,"share_alone":0.0,"ratings_seen":2024},"alone":{"avg_wait_h":0.0,"errors_per_100":7.44,"share_alone":100.0,"ratings_seen":227},"alone_if_safe":{"avg_wait_h":1.9,"errors_per_100":0.24,"share_alone":25.1,"ratings_seen":1518}},{"hours":80,"wait":{"avg_wait_h":1.2,"errors_per_100":0.0,"share_alone":0.0,"ratings_seen":2024},"alone":{"avg_wait_h":0.0,"errors_per_100":7.92,"share_alone":100.0,"ratings_seen":294},"alone_if_safe":{"avg_wait_h":1.2,"errors_per_100":0.32,"share_alone":25.4,"ratings_seen":1513}}]};
+const C = { ink:"#18263A", line:"#E3E8EF", green:"#127A5A", amber:"#D9921C", red:"#C8463F", blue:"#3F7FC2", muted:"#5E6B7E" };
+const small = () => window.innerWidth < 560;
+const cfg = { displayModeBar:false, responsive:true, scrollZoom:false };
+function base(x){ return Object.assign({ font:{family:"IBM Plex Sans, sans-serif", size: small()?12:13, color:C.ink}, paper_bgcolor:"rgba(0,0,0,0)", plot_bgcolor:"rgba(0,0,0,0)",
+  margin:{l:12,r:14,t:12,b:12}, dragmode:false, hovermode:"x unified", legend:{orientation:"h", y:-0.28, x:0} }, x||{}); }
+const ax = (t, extra) => Object.assign({ title:{text:t}, gridcolor:C.line, zeroline:false, fixedrange:true, automargin:true }, extra||{});
+
+// Experiment 1
+const B = E.exp1.budgets, R = E.exp1.ratings, P = E.exp1.preferences;
+function e1(i){
+  const mk = (y, name, color, i) => [{type:"scatter", mode:"lines+markers", name, x:B, y, line:{color, width:3}, marker:{size:7,color}, hovertemplate:"%{y}<extra>"+name+"</extra>"},
+    {type:"scatter", mode:"markers", showlegend:false, hoverinfo:"skip", x:[B[i]], y:[y[i]], marker:{size:16, color:"#fff", line:{color, width:4}}}];
+  Plotly.react("tacChart", [...mk(R.tac,"Ratings",C.green,i), ...mk(P.tac,"Preferences",C.amber,i)], base({ xaxis:ax("Owner answers", {type:"log", tickvals:B, ticktext:B.map(String)}), yaxis:ax("Alignment (Kendall τ-b)", {range:[0.5,1]}) }), cfg);
+  Plotly.react("errChart", [...mk(R.err,"Ratings",C.green,i), ...mk(P.err,"Preferences",C.amber,i)], base({ xaxis:ax("Owner answers", {type:"log", tickvals:B, ticktext:B.map(String)}), yaxis:ax("% decided differently from owner", {rangemode:"tozero"}) }), cfg);
+  document.getElementById("budgetOut").textContent = B[i];
+  document.getElementById("rTac").textContent = R.tac[i].toFixed(2); document.getElementById("rErr").textContent = R.err[i].toFixed(1)+"%";
+  document.getElementById("pTac").textContent = P.tac[i].toFixed(2); document.getElementById("pErr").textContent = P.err[i].toFixed(1)+"%";
+}
+const bud = document.getElementById("budget"); bud.addEventListener("input", ()=>e1(+bud.value)); e1(+bud.value);
+
+// Experiment 2
+const H = E.exp2.map(r=>r.hours);
+const fmtH = v => v >= 100 ? Math.round(v).toLocaleString()+" h" : (v>=10? Math.round(v)+" h" : v.toFixed(1)+" h");
+function e2(i){
+  const row = E.exp2[i];
+  const line = (k, name, color) => ({type:"scatter", mode:"lines+markers", name, x:H, y:E.exp2.map(r=>Math.max(r[k].avg_wait_h,0.1)), line:{color,width:3}, marker:{size:7,color}, hovertemplate:"%{y:.1f} h<extra>"+name+"</extra>"});
+  const tr = [line("wait","Always wait",C.blue), line("alone","Always act alone",C.red), line("alone_if_safe","Alone if confident and reversible",C.green),
+    {type:"scatter", mode:"markers", showlegend:false, hoverinfo:"skip", x:[H[i],H[i]], y:[Math.max(row.wait.avg_wait_h,0.1), Math.max(row.alone_if_safe.avg_wait_h,0.1)], marker:{size:16,color:"#fff",line:{color:[C.blue,C.green],width:4}}}];
+  Plotly.react("waitChart", tr, base({ hovermode:"closest", xaxis:ax("Owner available, hours per week"), yaxis:ax("Average wait (hours)", {type:"log", tickvals:[0.1,1,10,100,1000], ticktext:["0","1","10","100","1,000"]}) }), cfg);
+  document.getElementById("hoursOut").textContent = row.hours + " h";
+  document.getElementById("w1").textContent = fmtH(row.wait.avg_wait_h); document.getElementById("e1").textContent = row.wait.errors_per_100;
+  document.getElementById("w2").textContent = "0 h"; document.getElementById("e2").textContent = row.alone.errors_per_100.toFixed(1);
+  document.getElementById("w3").textContent = fmtH(row.alone_if_safe.avg_wait_h); document.getElementById("e3").textContent = row.alone_if_safe.errors_per_100.toFixed(2);
+  document.getElementById("s3").textContent = Math.round(row.alone_if_safe.share_alone)+"%";
+}
+const hrs = document.getElementById("hours"); hrs.addEventListener("input", ()=>e2(+hrs.value)); e2(+hrs.value);
+
+// Navigation
+function go(id){ const el=document.getElementById(id); if(!el) return; el.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); try{history.replaceState(null,"","#"+id);}catch(e){} }
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener("click",e=>{e.preventDefault(); go(a.getAttribute("href").slice(1));}));
+const navs=[...document.querySelectorAll(".topnav a")], secs=["why","testbed","lab","ratings","monitor","proposal","projects","refs"].map(i=>document.getElementById(i));
+addEventListener("scroll",()=>{ let cur=null; for(const s of secs){ if(s.getBoundingClientRect().top<120) cur=s.id; } navs.forEach(a=>a.classList.toggle("on", a.getAttribute("href")==="#"+cur)); },{passive:true});
+</script>
+</body>
+</html>
