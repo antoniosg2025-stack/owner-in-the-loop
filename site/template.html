@@ -523,8 +523,8 @@ footer a { color: #E6EEF6; }
       </a>
       <a class="case" href="#case-02" style="--accent: var(--gold)">
         <span class="tag">02 · Equilibra</span>
-        <span class="big">$8,800</span>
-        <p class="line">misplaced per user by copying the owner's moves. Learning his rule with 13 questions fixes it.</p>
+        <span class="big">35%</span>
+        <p class="line">of users' money misplaced by copying the owner's moves. Learning his rule with 13 questions fixes it.</p>
         <span class="state">Read the case →</span>
       </a>
       <a class="case" href="#case-03" style="--accent: var(--coral)">
@@ -541,7 +541,7 @@ footer a { color: #E6EEF6; }
       </a>
       <a class="case" href="#case-05" style="--accent: var(--teal)">
         <span class="tag">05 · Vending</span>
-        <span class="big">$83 → $155</span>
+        <span class="big">+87%</span>
         <p class="line">weekly margin after travel, because the owner's rules count his time and driving.</p>
         <span class="state">Read the case →</span>
       </a>
@@ -662,8 +662,8 @@ footer a { color: #E6EEF6; }
   <div class="wrap">
     <p class="tag" style="color: var(--gold)">Case 02 · Equilibra</p>
     <h2>Copying the owner's money moves fails for people in other situations</h2>
-    <div class="big num" style="color: var(--gold)">$8,800</div>
-    <div style="color: var(--muted)">misplaced per user when the agent copies the owner's moves</div>
+    <div class="big num" style="color: var(--gold)">35%</div>
+    <div style="color: var(--muted)">of users' money misplaced when the agent copies the owner's moves</div>
     <p class="lede read">Equilibra helps users study their portfolio with their own AI. The owner's rule is simple: pay off every card first, keep a stable cushion, and put at risk only what a fixed deposit would pay in a year. Copying his actions breaks for users with different debts and income. Learning the rule over the situation, with 13 well-chosen questions to the owner, decides for 1,000 different users as he would.</p>
     <div class="figs" data-case="02"></div>
     <div class="pager"><a href="#case-01"><span>Previous</span>01 · Agents</a><a href="#cases"><span>Back</span>All cases</a><a class="next" href="#case-03"><span>Next</span>03 · Press</a></div>
@@ -701,9 +701,9 @@ footer a { color: #E6EEF6; }
   <div class="wrap">
     <p class="tag" style="color: var(--teal)">Case 05 · Vending</p>
     <h2>The owner's limits beat the textbook optimum</h2>
-    <div class="big num" style="color: var(--teal)">$83 → $155</div>
+    <div class="big num" style="color: var(--teal)">+87%</div>
     <div style="color: var(--muted)">weekly margin after travel</div>
-    <p class="lede read">Restocking vending machines looks like a forecasting problem. The textbook plan ignored the owner's time and driving distance. His own rules include them and nearly double the weekly margin after travel. Learning each correction once takes 12 corrections instead of 150. One rule alone, skipping the clinic on low-sales weeks, adds $47 a week and saves about $77 in driving.</p>
+    <p class="lede read">Restocking vending machines looks like a forecasting problem. The textbook plan ignored the owner's time and driving distance. His own rules include them and nearly double the weekly margin after travel. Learning each correction once takes 12 corrections instead of 150. One rule alone, skipping the clinic on low-sales weeks, raises the weekly margin by 57% and cuts driving costs by about 23%.</p>
     <div class="figs" data-case="05"></div>
     <div class="pager"><a href="#case-04"><span>Previous</span>04 · SEO</a><a href="#cases"><span>Back</span>All cases</a><a class="next" href="#case-06"><span>Next</span>06 · GrabGo</a></div>
     <p class="note" style="margin-top:18px">Code and full notebook: <a href="https://github.com/antoniosg2025-stack/applied-ai-research-portfolio/blob/main/notebooks/05_vending_owner_rules_restock.ipynb">05_vending_owner_rules_restock.ipynb</a></p>
@@ -716,7 +716,7 @@ footer a { color: #E6EEF6; }
     <h2>Cheaper checkout by changing the shelf, not the camera</h2>
     <div class="big num" style="color: var(--gold)">−90%</div>
     <div style="color: var(--muted)">money lost to recognition errors</div>
-    <p class="lede read">GrabGo turns any space into a store that charges from images: the shelf camera, or a photo the customer sends by WhatsApp. Giving look-alike products the same price cuts the money lost to recognition errors by about 90% with no new hardware. Photo-only checkout misses about $160 per 1,000 carts. The owner's privacy and cost weights choose a different setup per location: photo-only at the dealership and the hotel, camera plus photo at a 200-person factory.</p>
+    <p class="lede read">GrabGo turns any space into a store that charges from images: the shelf camera, or a photo the customer sends by WhatsApp. Giving look-alike products the same price cuts the money lost to recognition errors by about 90% with no new hardware. Photo-only checkout misses about 3% of sales. The owner's privacy and cost weights choose a different setup per location: photo-only at the dealership and the hotel, camera plus photo at a 200-person factory.</p>
     <div class="figs" data-case="06"></div>
     <div class="pager"><a href="#case-05"><span>Previous</span>05 · Vending</a><a href="#cases"><span>Back</span>All cases</a><a class="next" href="#case-07"><span>Next</span>07 · Suppliers</a></div>
     <p class="note" style="margin-top:18px">Code and full notebook: <a href="https://github.com/antoniosg2025-stack/applied-ai-research-portfolio/blob/main/notebooks/06_grabgo_images_owner_tradeoffs.ipynb">06_grabgo_images_owner_tradeoffs.ipynb</a></p>
@@ -897,7 +897,7 @@ function renderFig(el, f){
   f.bars.forEach((b,i)=>{
     const x = b.x.map(v=> numericX ? v : catLabel(ticks, v));
     traces.push({ type:"bar", name:b.label||"", showlegend:!!b.label, x, y:b.h, marker:{ color:b.color.length>1 && !b.label ? b.color : b.color[0] },
-      text: b.h.map(v=> Math.abs(v)>=1000 ? Math.round(v).toLocaleString() : (Math.abs(v)<10 ? (+v.toFixed(1)).toString() : Math.round(v).toString())),
+      text: b.h.map(v=> (f.prefix && v>0 ? f.prefix : "") + (Math.abs(v)>=1000 ? Math.round(v).toLocaleString() : (Math.abs(v)<10 ? (+v.toFixed(f.suffix && Math.abs(v)<1 ? 2 : 1)).toString() : Math.round(v).toString())) + (f.suffix||"")),
       textposition: anyStack ? "inside" : "outside", cliponaxis:false, textfont:{ family:"IBM Plex Mono, monospace", size: small()?11:12 },
       hovertemplate:(b.label?b.label+": ":"")+"%{y:,.1f}<extra>%{x}</extra>" });
   });
